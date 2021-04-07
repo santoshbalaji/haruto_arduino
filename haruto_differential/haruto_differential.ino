@@ -1,64 +1,134 @@
-#include <ros.h>
-#include <std_msgs/String.h>
-#include <haruto_msgs/EncoderTick.h>
-#include <PID_v1.h>
 #include <Encoder.h>
+#include <ros.h>
+#include <geometry_msgs/Twist.h>
 
 #define PWMA 5
 #define MAF A5
 #define MAR A4
-#define ENCAF 18
-#define ENCAR 31 
 #define PWMB 9
 #define MBF 43
 #define MBR 42
-#define ENCBF 19
-#define ENCBR 38 
 #define PWMC 12
 #define MCF 35
 #define MCR 34
-#define ENCCF 3
-#define ENCCR 49
 #define PWMD 8
 #define MDF 37
 #define MDR 36
-#define ENCDF 2
-#define ENCDR 23
-#define SPEED 140
+
+#define ENCAF 2 
+#define ENCAR A1  
+#define ENCBF 3 
+#define ENCBR 49 
+#define ENCCF 18 
+#define ENCCR 31 
+#define ENCDF 19 
+#define ENCDR 38
+#define FRONT_LEFT_ENCODER_CYCLE 610
+#define FRONT_RIGHT_ENCODER_CYCLE 1004
+#define BACK_LEFT_ENCODER_CYCLE 1320 
+#define BACK_RIGHT_ENCODER_CYCLE 691
+#define CIRCUMFERENCE_FACTOR 0.18857
 #define WHEEL_RADIUS 0.03
+#define WHEEL_GAP 0.19
 
-Encoder front_left(2, A1), front_right(3, 49), back_left(18, 31), back_right(19, 38);
+Encoder front_left_encoder(ENCAF, ENCAR), front_right_encoder(ENCBF, ENCBR), back_left_encoder(ENCCF, ENCCR), back_right_encoder(ENCDF, ENCDR);
 
-const double PID_L[] = {0, 0, 0.1};
-const double PID_R[] = {0, 0, 0.1};
+long last_updated_time = 0;
+long front_left_tick = 0, front_right_tick = 0, back_left_tick = 0, back_right_tick = 0;
+double front_left_actual_speed = 0, front_right_actual_speed = 0, back_left_actual_speed = 0, back_right_actual_speed = 0;
+double front_left_expected_speed = 0, front_right_expected_speed = 0, back_left_expected_speed = 0, back_right_expected_speed = 0;
+double front_left_command_speed = 0, front_right_command_speed = 0, back_left_command_speed = 0, back_right_command_speed = 0;
 
-haruto_msgs::EncoderTick encoder_msg;
-ros::NodeHandle nh;
-ros::Publisher encoder_info("encoder", &encoder_msg);
+//ros::NodeHandle nh;
 
-void operation(const std_msgs::String& toggle_msg) 
+void receive_command(const geometry_msgs::Twist& cmd_vel)
 {
-  char* a = toggle_msg.data;
-  if(a[0] == 'F')
+  double x = cmd_vel.linear.x;
+  double z = cmd_vel.angular.z;
+  front_left_command_speed = ((2*x) - (z*WHEEL_GAP)) / 2;
+  back_left_command_speed = front_left_command_speed;
+  front_right_command_speed = ((2*x) + (z*WHEEL_GAP)) / 2;
+  back_right_command_speed = front_right_command_speed;
+}
+
+void compute_speed()
+{
+  if(millis() - last_updated_time >= 1000)
   {
-    move_forward();
+    front_left_actual_speed = - ((front_left_encoder.read() - front_left_tick) * CIRCUMFERENCE_FACTOR) / FRONT_LEFT_ENCODER_CYCLE;
+    front_right_actual_speed = ((front_right_encoder.read() - front_right_tick) * CIRCUMFERENCE_FACTOR) / FRONT_RIGHT_ENCODER_CYCLE;
+    back_left_actual_speed = - ((back_left_encoder.read() - back_left_tick) * CIRCUMFERENCE_FACTOR) / BACK_LEFT_ENCODER_CYCLE;
+    back_right_actual_speed = ((back_right_encoder.read() - back_right_tick) * CIRCUMFERENCE_FACTOR) / BACK_RIGHT_ENCODER_CYCLE;
+
+    front_left_tick = front_left_encoder.read();
+    front_right_tick = front_right_encoder.read();
+    back_left_tick = back_left_encoder.read();
+    back_right_tick = back_right_encoder.read();
+    last_updated_time = millis();
   }
-  else if(a[0] == 'B')
+}
+
+void execute_command()
+{
+  double x = 0.4, z = 0;
+  front_left_command_speed = ((2*x) - (z*WHEEL_GAP)) / 2;
+  back_left_command_speed = front_left_command_speed;
+  front_right_command_speed = ((2*x) + (z*WHEEL_GAP)) / 2;
+  back_right_command_speed = front_right_command_speed;
+
+  long temp = map(front_left_command_speed, 0, 0.5, 0, 255);
+  Serial.println(front_left_command_speed);
+  Serial.println(temp);
+//  Serial.println(map(front_left_command_speed, 0, 0.5, 0, 255));
+  
+//  analogWrite(PWMA, map(front_left_command_speed, 0, 0.5, 0, 255));
+//  analogWrite(PWMB, map(front_right_command_speed, 0, 0.5, 0, 255));
+//  analogWrite(PWMC, map(back_left_command_speed, 0, 0.5, 0, 255));
+//  analogWrite(PWMD, map(back_right_command_speed, 0, 0.5, 0, 255));
+  
+  if(front_left_command_speed > 0)
   {
-    move_reverse();
+    digitalWrite(MAF, HIGH);
+    digitalWrite(MAR, LOW);
+    digitalWrite(MCF, HIGH);
+    digitalWrite(MCR, LOW);
   }
-  else if(a[0] == 'L')
+  else if(front_left_command_speed < 0)
   {
-    turn_left();
+    digitalWrite(MAF, LOW);
+    digitalWrite(MAR, HIGH);
+    digitalWrite(MCF, LOW);
+    digitalWrite(MCR, HIGH);  
   }
-  else if(a[0] == 'R')
+  else
   {
-    turn_right();
+    digitalWrite(MAF, HIGH);
+    digitalWrite(MAR, HIGH);
+    digitalWrite(MCF, HIGH);
+    digitalWrite(MCR, HIGH);    
   }
-  else if(a[0] == 'S')
+  
+  if(front_right_command_speed > 0)
   {
-    brake();
-  }  
+    digitalWrite(MBF, HIGH);
+    digitalWrite(MBR, LOW);
+    digitalWrite(MDF, HIGH);
+    digitalWrite(MDR, LOW);
+  }
+  else if(front_right_command_speed < 0)
+  {
+    digitalWrite(MBF, LOW);
+    digitalWrite(MBR, HIGH);
+    digitalWrite(MDF, LOW);
+    digitalWrite(MDR, HIGH);  
+  }
+  else
+  {
+    digitalWrite(MBF, HIGH);
+    digitalWrite(MBR, HIGH);
+    digitalWrite(MDF, HIGH);
+    digitalWrite(MDR, HIGH);    
+  }
 }
 
 void setup()
@@ -75,102 +145,17 @@ void setup()
   pinMode(PWMD, OUTPUT);
   pinMode(MDF, OUTPUT);
   pinMode(MDR, OUTPUT);
-
-  analogWrite(PWMA, SPEED);
-  analogWrite(PWMB, SPEED);
-  analogWrite(PWMC, SPEED);
-  analogWrite(PWMD, SPEED);
-
-  nh.initNode();
-  nh.advertise(encoder_info);
-  ros::Subscriber<std_msgs::String> operation_command("operation", &operation);
-  nh.subscribe(operation_command);
   
+//  nh.initNode();  
+//  ros::Subscriber<geometry_msgs::Twist> twist_command("cmd_vel", &receive_command);
+//  nh.subscribe(twist_command);
+ 
   Serial.begin(9600);
 }
 
 void loop()
 {
-  notify_encoder_tick();
-  nh.spinOnce();
-  delay(100);
-}
-
-void move_forward()
-{
-  digitalWrite(MAF, HIGH);
-  digitalWrite(MAR, LOW);
-  digitalWrite(MBF, HIGH);
-  digitalWrite(MBR, LOW);
-  digitalWrite(MCF, HIGH);
-  digitalWrite(MCR, LOW);
-  digitalWrite(MDF, HIGH);
-  digitalWrite(MDR, LOW);
-}
-
-void move_reverse()
-{
-  digitalWrite(MAF, LOW);
-  digitalWrite(MAR, HIGH);
-  digitalWrite(MBF, LOW);
-  digitalWrite(MBR, HIGH);
-  digitalWrite(MCF, LOW);
-  digitalWrite(MCR, HIGH);
-  digitalWrite(MDF, LOW);
-  digitalWrite(MDR, HIGH);
-}
-
-void turn_right()
-{
-  digitalWrite(MAF, HIGH);
-  digitalWrite(MAR, LOW);
-  digitalWrite(MBF, LOW);
-  digitalWrite(MBR, HIGH);
-  digitalWrite(MCF, HIGH);
-  digitalWrite(MCR, LOW);
-  digitalWrite(MDF, LOW);
-  digitalWrite(MDR, HIGH);  
-}
-
-void turn_left()
-{
-  digitalWrite(MAF, LOW);
-  digitalWrite(MAR, HIGH);
-  digitalWrite(MBF, HIGH);
-  digitalWrite(MBR, LOW);
-  digitalWrite(MCF, LOW);
-  digitalWrite(MCR, HIGH);
-  digitalWrite(MDF, HIGH);
-  digitalWrite(MDR, LOW);  
-}
-
-void brake()
-{
-  digitalWrite(MAF, HIGH);
-  digitalWrite(MAR, HIGH);
-  digitalWrite(MBF, HIGH);
-  digitalWrite(MBR, HIGH);
-  digitalWrite(MCF, HIGH);
-  digitalWrite(MCR, HIGH);
-  digitalWrite(MDF, HIGH);
-  digitalWrite(MDR, HIGH);
-}
-
-void compute_speed()
-{
-  
-}
-
-void notify_encoder_tick()
-{
-  encoder_msg.front_left_encoder = front_left.read();
-  encoder_msg.front_right_encoder = front_right.read();
-  encoder_msg.back_left_encoder = back_left.read();
-  encoder_msg.back_right_encoder = back_right.read();
-  encoder_info.publish(&encoder_msg);
-}
-
-void notify_speed()
-{
-  
+  Serial.println("running");
+  execute_command();
+//  compute_speed();
 }
