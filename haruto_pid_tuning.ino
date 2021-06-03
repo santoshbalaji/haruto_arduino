@@ -1,19 +1,26 @@
+#include "command.h"
 #include "wheel.h"
-#include "velocity.h"
 #include "odom.h"
+#include "feedback.h"
 
-Velocity velocity;
-Wheel wheel;
-Odom odom;
+extern Command command;
+extern Wheel wheel;
+extern Odom odom;
+extern Feedback feedback;
 
 void setup()
 {
+  Command command;
+  Wheel wheel;
+  Odom odom;
+  Feedback feedback;
   Serial.begin(115200);
 }
 
 void loop()
 {
-  velocity.computeSpeedToPWM();
+  command.computeSpeedToPWM();
   wheel.executeCommand();
   odom.computeSpeed();
+  feedback.broadcastVelocity();
 }

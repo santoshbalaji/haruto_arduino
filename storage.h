@@ -1,7 +1,6 @@
 #ifndef Storage_h
 #define Storage_h
 
-
 #define ENCAF 2 
 #define ENCAR A1  
 #define ENCBF 3 
@@ -40,17 +39,14 @@
 
 #include "Arduino.h"
 #include <ros.h>
-#include <tf/tf.h>
-#include <tf/transform_broadcaster.h>
 
-extern double frontActualLeftSpeed, frontActualRightSpeed, backActualLeftSpeed, backActualRightSpeed;
-extern double frontExpectedLeftSpeed, frontExpectedRightSpeed, backExpectedLeftSpeed, backExpectedRightSpeed;
-extern double frontCommandLeftSpeed, frontCommandRightSpeed, backCommandLeftSpeed, backCommandRightSpeed;
+extern double frontLeftActualSpeed, frontRightActualSpeed, backLeftActualSpeed, backRightActualSpeed;
+extern double frontLeftExpectedSpeed, frontRightExpectedSpeed, backLeftExpectedSpeed, backRightExpectedSpeed;
+extern double frontLeftCommandSpeed, frontRightCommandSpeed, backLeftCommandSpeed, backRightCommandSpeed;
 extern double kPFL, kIFL, kDFL,kPFR, kIFR, kDFR, kPBL, kIBL, kDBL, kPBR, kIBR, kDBR;
 extern double linear, angular;
 extern ros::NodeHandle nh;
-extern geometry_msgs::TransformStamped t;
-extern tf::TransformBroadcaster broadcaster;
 extern double x, y, theta;
+extern long frontLeftTick, frontRightTick, backLeftTick, backRightTick, tickUpdatedTime;
 
 #endif

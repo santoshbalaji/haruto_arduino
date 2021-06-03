@@ -18,19 +18,19 @@ Wheel::Wheel()
 
 void Wheel::executeCommand()
 {
-  analogWrite(PWMA, frontCommandLeftSpeed);
-  analogWrite(PWMB, frontCommandRightSpeed);
-  analogWrite(PWMC, backCommandLeftSpeed);
-  analogWrite(PWMD, backCommandRightSpeed);
+  analogWrite(PWMA, frontLeftCommandSpeed);
+  analogWrite(PWMB, frontRightCommandSpeed);
+  analogWrite(PWMC, backLeftCommandSpeed);
+  analogWrite(PWMD, backRightCommandSpeed);
 
-  if(frontExpectedLeftSpeed > 0)
+  if(frontLeftExpectedSpeed > 0)
   {    
     digitalWrite(MAF, HIGH);
     digitalWrite(MAR, LOW);
     digitalWrite(MCF, HIGH);
     digitalWrite(MCR, LOW);
   }
-  else if(frontExpectedLeftSpeed < 0)
+  else if(frontLeftExpectedSpeed < 0)
   {
     digitalWrite(MAF, LOW);
     digitalWrite(MAR, HIGH);
@@ -45,14 +45,14 @@ void Wheel::executeCommand()
     digitalWrite(MCR, HIGH);    
   }
   
-  if(frontExpectedRightSpeed > 0)
+  if(frontRightExpectedSpeed > 0)
   {
     digitalWrite(MBF, HIGH);
     digitalWrite(MBR, LOW);
     digitalWrite(MDF, HIGH);
     digitalWrite(MDR, LOW);
   }
-  else if(frontExpectedRightSpeed < 0)
+  else if(frontRightExpectedSpeed < 0)
   {
     digitalWrite(MBF, LOW);
     digitalWrite(MBR, HIGH);
