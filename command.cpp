@@ -44,8 +44,12 @@ void receiveCommand(const haruto_msgs::Command& command)
   linear = command.x;
   angular = command.z;
 
-  frontLeftExpectedSpeed = ((2 * linear) - (angular * WHEEL_GAP)) / 2;
+  frontLeftExpectedSpeed = ((2 * linear) - (angular * WHEEL_GAP)) / (2);
   backLeftExpectedSpeed = frontLeftExpectedSpeed;
-  frontRightExpectedSpeed = ((2 * linear) + (angular * WHEEL_GAP)) / 2;
+  frontRightExpectedSpeed = ((2 * linear) + (angular * WHEEL_GAP)) / (2);
   backRightExpectedSpeed = frontRightExpectedSpeed;
+
+  char result[8]; 
+  dtostrf(frontLeftExpectedSpeed, 6, 2, result);
+  nh.loginfo(result);
 }

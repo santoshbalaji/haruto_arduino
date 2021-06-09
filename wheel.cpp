@@ -22,9 +22,9 @@ void Wheel::executeCommand()
   analogWrite(PWMB, frontRightCommandSpeed);
   analogWrite(PWMC, backLeftCommandSpeed);
   analogWrite(PWMD, backRightCommandSpeed);
-
+  
   if(frontLeftExpectedSpeed > 0)
-  {    
+  {   
     digitalWrite(MAF, HIGH);
     digitalWrite(MAR, LOW);
     digitalWrite(MCF, HIGH);
