@@ -48,5 +48,6 @@ extern double linear, angular;
 extern ros::NodeHandle nh;
 extern double x, y, theta;
 extern long frontLeftTick, frontRightTick, backLeftTick, backRightTick, tickUpdatedTime;
+extern int leftState, rightState;
 
 #endif
