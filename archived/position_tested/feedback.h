@@ -1,15 +1,15 @@
 #ifndef Feedback_h
 #define Feedback_h
 
-#include <Encoder.h>
 #include "storage.h"
-#include <haruto_msgs/Tick.h>
+#include <haruto_msgs/Velocity.h>
+#include <haruto_msgs/PID.h>
 
 class Feedback
 {
   public:
     Feedback();
-    void broadcastEncoderTick();
+    void broadcastVelocity();
 };
 
 #endif

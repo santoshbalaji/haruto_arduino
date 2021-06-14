@@ -1,43 +1,20 @@
 #include "feedback.h"
 
-haruto_msgs::Velocity velocity;
-haruto_msgs::PID pid;
-ros::Publisher velocityPublisher("feedback_velocity", &velocity);
-void setParameters(const haruto_msgs::PID& pid);
-
-ros::Subscriber<haruto_msgs::PID> pidParametersCommand("pid_configuration", &setParameters);
+Encoder frontLeftEncoder(ENCAF, ENCAR), frontRightEncoder(ENCBF, ENCBR), backLeftEncoder(ENCCF, ENCCR), backRightEncoder(ENCDF, ENCDR);
+long tickUpdatedTime = millis();
+haruto_msgs::Tick tick;
+ros::Publisher tickPublisher("feedback_tick", &tick);
 
 Feedback::Feedback()
-{ 
-  nh.advertise(velocityPublisher);
-  nh.subscribe(pidParametersCommand);
+{
+  nh.advertise(tickPublisher);
 }
 
-void Feedback::broadcastVelocity()
+void Feedback::broadcastEncoderTick()
 {
-  velocity.frontLeftExpectedSpeed = frontLeftExpectedSpeed;
-  velocity.frontRightExpectedSpeed = frontRightExpectedSpeed;
-  velocity.backLeftExpectedSpeed = backLeftExpectedSpeed;
-  velocity.backRightExpectedSpeed = backRightExpectedSpeed;
-  velocity.frontLeftActualSpeed = frontLeftActualSpeed;
-  velocity.frontRightActualSpeed = frontRightActualSpeed;
-  velocity.backLeftActualSpeed = backLeftActualSpeed;
-  velocity.backRightActualSpeed = backRightActualSpeed;
-  velocityPublisher.publish(&velocity);
-}
-
-void setParameters(const haruto_msgs::PID& pid)
-{
-  kPFL = pid.pfl;
-  kIFL = pid.ifl;
-  kDFL = pid.dfl;
-  kPFR = pid.pfr;
-  kIFR = pid.ifr;
-  kDFR = pid.dfr;
-  kPBL = pid.pbl;
-  kIBL = pid.ibl;
-  kDBL = pid.dbl;
-  kPBR = pid.pbr;
-  kIBR = pid.ibr;
-  kDBR = pid.dbr;
+  tick.frontLeftTick = frontLeftEncoder.read();
+  tick.frontRightTick = frontRightEncoder.read();
+  tick.backLeftTick = backLeftEncoder.read();
+  tick.backRightTick = backRightEncoder.read();
+  tickPublisher.publish(&tick);
 }
