@@ -13,7 +13,8 @@ void setup()
 
 void loop()
 {
-  task.executeCommand();
-  feedback.broadcastEncoderTick();
-  task.activateROSSpin(); 
+  task.execute_command();
+  feedback.broadcast_encoder_tick();
+  feedback.broadcast_imu();
+  task.activate_ros_spin(); 
 }

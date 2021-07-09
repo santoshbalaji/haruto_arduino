@@ -27,6 +27,6 @@
 #include <ros.h>
 
 extern ros::NodeHandle nh;
-extern int frontLeftPWM, frontRightPWM, backLeftPWM, backRightPWM, leftState, rightState;
+extern int front_left_pwm, front_right_pwm, back_left_pwm, back_right_pwm, left_state, right_state;
 
 #endif
