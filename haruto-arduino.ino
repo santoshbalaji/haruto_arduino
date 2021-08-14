@@ -14,7 +14,6 @@ void setup()
 void loop()
 {
   task.execute_command();
-  feedback.broadcast_encoder_tick();
-  feedback.broadcast_imu();
+  feedback.broadcast_feedback();
   task.activate_ros_spin(); 
 }

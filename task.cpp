@@ -39,13 +39,27 @@ void Task::execute_command()
     {
       nh.loginfo("left wheels moving in forward direction");   
       digitalWrite(MAF, HIGH);
+      digitalWrite(MAR, HIGH);
+      digitalWrite(MCF, HIGH);
+      digitalWrite(MCR, HIGH);  
+
+      delay(50);
+      
+      digitalWrite(MAF, HIGH);
       digitalWrite(MAR, LOW);
       digitalWrite(MCF, HIGH);
       digitalWrite(MCR, LOW);
     }
-    else if(left_state == -1)
+    else if(left_state == 2)
     {
       nh.loginfo("left wheels moving in backward direction");
+      digitalWrite(MAF, HIGH);
+      digitalWrite(MAR, HIGH);
+      digitalWrite(MCF, HIGH);
+      digitalWrite(MCR, HIGH);  
+
+      delay(50);
+      
       digitalWrite(MAF, LOW);
       digitalWrite(MAR, HIGH);
       digitalWrite(MCF, LOW);
@@ -63,12 +77,19 @@ void Task::execute_command()
     if(right_state == 1)
     {
       nh.loginfo("right wheels moving in forward direction");
+            digitalWrite(MAF, HIGH);
+      digitalWrite(MAR, HIGH);
+      digitalWrite(MCF, HIGH);
+      digitalWrite(MCR, HIGH);  
+
+      delay(50);
+      
       digitalWrite(MBF, HIGH);
       digitalWrite(MBR, LOW);
       digitalWrite(MDF, HIGH);
       digitalWrite(MDR, LOW);
     }
-    else if(right_state == -1)
+    else if(right_state == 2)
     {
       nh.loginfo("right wheels moving in backward direction");
       digitalWrite(MBF, LOW);
