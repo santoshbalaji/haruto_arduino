@@ -2,6 +2,14 @@
 
 The following arduino project is a base controller for custom made four wheel differential drive robot powered by arduino and ROS 
 
+## Hardware required 
+	1) Arduino Mega2560
+	 <img src="https://github.com/santoshbalaji/haruto-arduino/blob/master/img/2.jpg" width="350" />
+	2) Dual motor driver shield for Arduino mega 2560 with encoder compatible connectors 
+	 <img src="https://github.com/santoshbalaji/haruto-arduino/blob/master/img/3.webp" width="350" />
+	3) Motor with encoder 	
+	 <img src="https://github.com/santoshbalaji/haruto-arduino/blob/master/img/4.webp" width="350" />
+
 ### 1) Storage (header.h)
       This header file is to keep track of commonly used variables across the project 
 
