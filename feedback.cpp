@@ -5,14 +5,10 @@ haruto_msgs::Tick tick;
 haruto_msgs::Reply reply;
 ros::Publisher feedback_publisher("diff_feedback", &reply);
 long elapsed_time_for_tick = millis();
-ICM_20948_I2C icm;
 
 Feedback::Feedback()
 {
   nh.advertise(feedback_publisher);
-  Wire.begin();
-  Wire.setClock(400000);
-  icm.begin(Wire, 1);
 }
 
 void Feedback::broadcast_feedback()
